@@ -10,7 +10,7 @@
         /* Minimalist Green & White Theme */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f9f4; color: #333; }
         header { background-color: #2e7d32; color: white; padding: 1.5rem; text-align: center; }
-        nav { display: flex; justify-content: center; gap: 20px; padding: 10px; background: #e8f5e9; border-bottom: 2px solid #c8e6c9; }
+        nav { display: flex; justify-content: center; align-items: center; gap: 20px; padding: 10px; background: #e8f5e9; border-bottom: 2px solid #c8e6c9; }
         nav a { text-decoration: none; color: #2e7d32; font-weight: bold; font-size: 1.1rem; transition: color 0.2s; }
         nav a:hover { color: #1b5e20; }
         .container { max-width: 800px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -23,13 +23,13 @@
     </header>
     <nav>
         <a href="/">Bulletin Board</a>
+        <a href="/about">About</a>
         
         {% if current_user.is_authenticated %}
             <span style="color: #2e7d32; font-weight: bold; padding: 10px;">Welcome, {{ current_user.username }}!</span>
             <a href="/create_post">Post a Meal</a>
             <a href="/inbox">Inbox</a>
             <a href="/logout">Logout</a>
-            
         {% else %}
             <a href="/login">Login</a>
             <a href="/register">Sign Up</a>

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Banner -->
+<div style="background-color: #e8f5e9; padding: 50px 20px; text-align: center; border-radius: 8px; border: 2px solid #c8e6c9; margin-bottom: 40px;">
+    <h1 style="color: #2e7d32; margin-top: 0; font-size: 2.5em;">The Goal: Neighbors Feeding Neighbors</h1>
+    <p style="font-size: 1.2em; color: #333; max-width: 800px; margin: 0 auto 25px auto; line-height: 1.6;">
+        Between the reduction of federal SNAP benefits and the rising costs of inflation, too many people in local communities are being forced to skip meals. It is a shared belief that no one should go hungry while perfectly good food is thrown away.
+    </p>
+    
+    {% if current_user.is_authenticated %}
+        <a href="/create_post" style="display: inline-block; background-color: #2e7d32; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1em; transition: background-color 0.3s;">Post a Meal</a>
+    {% else %}
+        <a href="/register" style="display: inline-block; background-color: #2e7d32; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1em; transition: background-color 0.3s;">Join the Neighborhood</a>
+    {% endif %}
+</div>
+
+<!-- Main Content Area -->
+<div style="max-width: 900px; margin: 0 auto; line-height: 1.6; color: #333;">
+
+    <h2 style="color: #2e7d32; border-bottom: 2px solid #c8e6c9; padding-bottom: 10px;">What Sharing Looks Like</h2>
+    <p>This application is a hyper-local, community-driven social forum designed to bridge the gap between food waste and food insecurity. It is a dedicated space for neighbors to post leftover food, offer groceries, and look out for one another. Contributors do not need to be professional chefs to participate. Sharing comes in many forms, and every contribution matters:</p>
+    <ul>
+        <li><strong>The Corporate Surplus:</strong> Bringing home the untouched, catered sandwich platters left over after a corporate board meeting.</li>
+        <li><strong>The Garden Bounty:</strong> Offering up the extra tomatoes, zucchini, or herbs from a summer garden that cannot be eaten fast enough.</li>
+        <li><strong>The Big Batch:</strong> Purposely making an extra-large batch of a weekly chili or lasagna specifically to portion out and share with someone nearby.</li>
+        <li><strong>The Pantry Cleanse:</strong> Giving away unopened, shelf-stable groceries that were bought but never used.</li>
+    </ul>
+
+    <h2 id="guidelines" style="color: #2e7d32; border-bottom: 2px solid #c8e6c9; padding-bottom: 10px; margin-top: 40px;">Community Guidelines</h2>
+    <p>To keep this platform safe, welcoming, and strictly focused on community care, all users must agree to the following guidelines.</p>
+
+    <!-- Guidelines Table to Avoid Nested Lists -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 0.95em;">
+        <thead>
+            <tr style="background-color: #2e7d32; color: white; text-align: left;">
+                <th style="padding: 12px; border: 1px solid #c8e6c9;">Category</th>
+                <th style="padding: 12px; border: 1px solid #c8e6c9;">Rule</th>
+                <th style="padding: 12px; border: 1px solid #c8e6c9;">Expectation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 12px; border: 1px solid #ddd;"><strong>Food Safety</strong></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Honesty is Mandatory</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Always accurately label food using the dietary tags and preparation states.</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border: 1px solid #ddd;"><strong>Food Safety</strong></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">No Compromised Food</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">There is a strict reliance on community self-policing. The sharing of previously served food (e.g., food scraped off a plate) or items that are clearly spoiled is absolutely forbidden.</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 12px; border: 1px solid #ddd;"><strong>Food Safety</strong></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Proper Handling</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Ensure food is stored safely before pickup, utilizing the "Refrigerated" or "Frozen" tags to communicate how quickly a meal needs to be transported.</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border: 1px solid #ddd;"><strong>Respect & Decorum</strong></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Zero Financial Exchange</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">This is a place for giving, not selling. Because the platform has no exchange of payment, it remains a true social exchange. Never ask for money, and never offer money.</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 12px; border: 1px solid #ddd;"><strong>Respect & Decorum</strong></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Protect Personal Info</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Do not post phone numbers, emails, or exact home addresses in public listings. Always use the secure, internal messaging system to coordinate pickup details.</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border: 1px solid #ddd;"><strong>Respect & Decorum</strong></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Be a Good Neighbor</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">Show up when agreed upon, respect people's privacy when picking up food, and treat everyone with dignity.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 style="color: #2e7d32; border-bottom: 2px solid #c8e6c9; padding-bottom: 10px; margin-top: 40px;">Open Source & Usage</h2>
+    <p>This project was built by the community, for the community. The underlying code for this platform is entirely open-source and hosted on <strong><a href="#" style="color: #1976d2;">[Insert GitHub Link]</a></strong>.</p>
+    <ul>
+        <li><strong>The MIT License:</strong> This project operates under the MIT License, which is one of the most permissive open-source licenses available.</li>
+        <li><strong>What This Means:</strong> Anyone is free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of this software. The ultimate vision is for other cities, towns, and neighborhoods to take this code, spin up their own local servers, and feed their communities.</li>
+    </ul>
+
+    <h2 style="color: #2e7d32; border-bottom: 2px solid #c8e6c9; padding-bottom: 10px; margin-top: 40px;">Additional Project-Specific Information</h2>
+    <p>Because the app is built with a specific technical stack (encrypted emails, radius filtering instead of exact addresses), the following privacy and liability protections are hard-coded into the experience:</p>
+    <ul>
+        <li><strong>Privacy First:</strong> How Users Are Protected: Exact home addresses are never exposed; only zip codes are used to calculate a general distance radius for the neighborhood map. Furthermore, email addresses are mathematically encrypted in the database, and the in-app messaging system ensures meals can be claimed without ever exposing personal contact information to strangers.</li>
+        <li><strong>Liability Disclaimer:</strong> The "At Your Own Risk" Clause: As a digital facilitator of a social exchange, this platform does not inspect, handle, or guarantee the safety of the food posted. By using this app, individuals acknowledge that they are accepting food entirely at their own risk.</li>
+        <li><strong>Good Samaritan Laws:</strong> The platform operates in the spirit of the Bill Emerson Good Samaritan Food Donation Act, which protects individuals who donate food in good faith from civil and criminal liability.</li>
+    </ul>
+</div>
+{% endblock %}

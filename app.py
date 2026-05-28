@@ -148,6 +148,10 @@ def home():
 
     return render_template('index.html', posts=nearby_posts)
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/create_post', methods=['GET', 'POST'])
 @login_required
 def create_post():
@@ -251,6 +255,7 @@ def register():
     error = None # Create an empty error variable to send to the HTML
     
     if request.method == 'POST':
+
         username_input = request.form['username']
         email_input = request.form['email']
         password_input = request.form['password']
