@@ -2,6 +2,7 @@ import os
 import uuid
 import boto3
 import math
+import resend
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
@@ -105,6 +106,29 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     
     distance = R * c
     return distance
+
+# -------------------------------------------------------------
+# EMAIL NOTIFICATIONS (Module 7)
+# -------------------------------------------------------------
+resend.api_key = os.getenv('RESEND_API_KEY')
+
+def send_notification_email(receiver_email, sender_username):
+    # If we don't have an API key yet, just print it to the terminal for local testing
+    if not resend.api_key or resend.api_key == 'your_future_resend_api_key_here':
+        print(f"📧 MOCK EMAIL SENT TO {receiver_email}: 'Heads up! {sender_username} just messaged you on Denver Food Share!'")
+        return
+
+    # If we do have an API key, send the real email!
+    try:
+        resend.Emails.send({
+            "from": "notifications@denverfoodshare.com", # Update this when you buy a domain!
+            "to": receiver_email,
+            "subject": "New Message on Denver Food Share!",
+            "html": f"<p>Hello! <strong>{sender_username}</strong> just sent you a message regarding a meal.</p><p><a href='http://localhost:5000/inbox'>Log in to view your inbox</a></p>"
+        })
+    except Exception as e:
+        print(f"Email failed to send: {e}")
+
 
 # -------------------------------------------------------------
 # CORE ROUTING (Modules 1, 2, 4, 5, 7)
@@ -333,6 +357,13 @@ def conversation(other_user_id):
     # 1. Handle sending a new message in the thread
     if request.method == 'POST':
         message_content = request.form['content']
+        
+        # NEW LOGIC: Check if this is the very first message from you to them
+        first_time_messaging = Message.query.filter_by(
+            sender_id=current_user.id, 
+            receiver_id=other_user.id
+        ).first() is None
+        
         new_message = Message(
             sender_id=current_user.id,
             receiver_id=other_user.id,
@@ -340,6 +371,11 @@ def conversation(other_user_id):
         )
         db.session.add(new_message)
         db.session.commit()
+        
+        # NEW LOGIC: Trigger the email if it was their first message!
+        if first_time_messaging:
+            send_notification_email(other_user.email_encrypted, current_user.username)
+            
         # Refresh the page to show the new message
         return redirect(url_for('conversation', other_user_id=other_user.id))
         
@@ -349,9 +385,9 @@ def conversation(other_user_id):
             (Message.sender_id == current_user.id) & (Message.receiver_id == other_user.id),
             (Message.sender_id == other_user.id) & (Message.receiver_id == current_user.id)
         )
-    ).order_by(Message.timestamp.asc()).all() # .asc() puts the oldest messages at the top
+    ).order_by(Message.timestamp.asc()).all()
     
-    # 3. Mark any unread messages from them as "read" now that we are looking at the thread
+    # 3. Mark any unread messages from them as "read"
     for msg in chat_history:
         if msg.receiver_id == current_user.id and not msg.is_read:
             msg.is_read = True
