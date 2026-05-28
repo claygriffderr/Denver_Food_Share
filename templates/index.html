@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Active Food Listings</h2>
+    <p>Welcome to the neighborhood! Here is what's available right now.</p>
+    <hr style="border: 1px solid #eee; margin-bottom: 20px;">
+    {% if current_user.is_authenticated and current_user.latitude %}
+        <div id="neighborhood-map" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #c8e6c9; margin-bottom: 25px; z-index: 1;"></div>
+        
+        <script>
+            // 1. Initialize the map and center it on the current logged-in user
+            var map = L.map('neighborhood-map').setView([{{ current_user.latitude }}, {{ current_user.longitude }}], 12);
+            
+            // 2. Load the free map tiles from OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // 3. Drop a special blue pin for the user's home location
+            L.circleMarker([{{ current_user.latitude }}, {{ current_user.longitude }}], {
+                color: '#1976d2',
+                fillColor: '#1976d2',
+                fillOpacity: 0.5,
+                radius: 8
+            }).addTo(map).bindPopup("<b>You are here</b>");
+
+            // 4. Loop through the active posts and drop a green pin for each meal!
+            {% for post in posts %}
+                {% if post.uploader.latitude and post.uploader.longitude %}
+                    L.marker([{{ post.uploader.latitude }}, {{ post.uploader.longitude }}])
+                        .addTo(map)
+                        .bindPopup(`
+                            <strong style="color: #2e7d32;">{{ post.title }}</strong><br>
+                            Posted by: {{ post.uploader.username }}<br>
+                            <a href="/send_message/{{ post.uploader.id }}">Message to claim</a>
+                        `);
+                {% endif %}
+            {% endfor %}
+        </script>
+    {% endif %}
+    {% if posts %}
+        {% for post in posts %}
+        <div style="border: 1px solid #c8e6c9; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+            <h3 style="margin-top: 0; color: #2e7d32; margin-bottom: 10px;">{{ post.title }}</h3>
+            
+            {% if post.image_url %}
+                <img src="{{ post.image_url }}" alt="Meal Photo" style="max-width: 100%; max-height: 300px; object-fit: cover; border-radius: 4px; margin-bottom: 15px; border: 1px solid #ccc;">
+            {% endif %}
+            
+            <p style="margin-top: 0;">{{ post.description }}</p>
+            <small style="color: #666;">
+                {% if post.distance != None %}
+                    <span style="color: #1976d2; font-weight: bold; display: block; margin-bottom: 5px;">📍 {{ post.distance }} miles away</span>
+                {% endif %}
+                
+                Posted by: <strong>{{ post.uploader.username }}</strong> | 
+                Status: {{ post.status.capitalize() }} |
+                {% if post.is_refrigerated %} ❄️ Refrigerated {% else %} ♨️ Fresh/Pantry {% endif %}
+            </small>
+            
+            {% if current_user.is_authenticated and post.uploader.id != current_user.id %}
+            <div style="margin-top: 15px;">
+                <a href="/conversation/{{ post.uploader.id }}" style="background-color: #e8f5e9; color: #2e7d32; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-weight: bold; border: 1px solid #c8e6c9;">
+                    💬 Message to Claim
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #666; font-style: italic;">No active meals right now. Be the first to share!</p>
+    {% endif %}
+{% endblock %}

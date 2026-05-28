@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Welcome Back</h2>
+    <p>Sign in to claim leftovers or post a meal.</p>
+    
+    <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px solid #c8e6c9; max-width: 400px;">
+        <form method="POST" action="/login" style="display: flex; flex-direction: column; gap: 15px;">
+            
+            <label for="email" style="color: #2e7d32; font-weight: bold;">Email Address</label>
+            <input type="email" id="email" name="email" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            
+            <label for="password" style="color: #2e7d32; font-weight: bold;">Password</label>
+            <input type="password" id="password" name="password" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            
+            <button type="submit" style="background-color: #2e7d32; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                Log In
+            </button>
+        </form>
+    </div>
+{% endblock %}

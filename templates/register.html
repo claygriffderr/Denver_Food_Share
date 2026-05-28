@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Join the Neighborhood</h2>
+    <p>Sign up to start sharing and claiming meals.</p>
+    
+    {% if error %}
+        <div style="background-color: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; border: 1px solid #ef9a9a; margin-bottom: 20px; font-weight: bold;">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <div style="background-color: #fff3cd; color: #856404; padding: 12px; border-radius: 4px; border: 1px solid #ffeeba; margin-bottom: 20px; max-width: 400px; font-size: 0.9rem;">
+        ⚠️ <strong>Important:</strong> To protect your privacy, we mathematically hash all passwords. Because we cannot see your password, <strong>we currently have no password recovery system.</strong> Please store your password securely!
+    </div>
+    
+    <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px solid #c8e6c9; max-width: 400px;">
+        <form method="POST" action="/register" style="display: flex; flex-direction: column; gap: 15px;">
+            
+            <label for="username" style="color: #2e7d32; font-weight: bold;">Username</label>
+            <input type="text" id="username" name="username" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            
+            <label for="email" style="color: #2e7d32; font-weight: bold;">Email Address</label>
+            <input type="email" id="email" name="email" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            
+            <label for="zip_code" style="color: #2e7d32; font-weight: bold;">Zip Code (For local matching)</label>
+            <input type="text" id="zip_code" name="zip_code" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            
+            <label for="password" style="color: #2e7d32; font-weight: bold;">Password</label>
+            <input type="password" id="password" name="password" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            
+            <button type="submit" style="background-color: #2e7d32; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                Create Account
+            </button>
+        </form>
+    </div>
+{% endblock %}

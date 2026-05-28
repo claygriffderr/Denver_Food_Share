@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Your Inbox</h2>
+    <p>Secure messages from your neighbors.</p>
+    <hr style="border: 1px solid #eee; margin-bottom: 20px;">
+    
+    {% if messages %}
+        {% for message in messages %}
+        <div style="border: 1px solid #c8e6c9; padding: 15px; border-radius: 5px; margin-bottom: 15px; background: {% if not message.is_read %}#f4f9f4{% else %}white{% endif %};">
+            <h4 style="margin-top: 0; color: #2e7d32; margin-bottom: 5px;">From: {{ message.sender.username }}</h4>
+            <small style="color: #666;">Received on: {{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+            <p style="margin-top: 10px;">{{ message.content }}</p>
+            
+            <a <a href="/conversation/{{ message.sender.id }}" style="text-decoration: none; color: #1b5e20; font-weight: bold; font-size: 0.9rem;">↩ View Thread & Reply</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #666; font-style: italic;">Your inbox is empty right now.</p>
+    {% endif %}
+{% endblock %}
