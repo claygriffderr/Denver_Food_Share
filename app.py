@@ -66,12 +66,15 @@ class Post(db.Model):
     description = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     status = db.Column(db.String(20), default='active')
-    is_refrigerated = db.Column(db.Boolean, default=False)
-    
-    # NEW LINE: Store the Cloudflare R2 URL
-    image_url = db.Column(db.String(500), nullable=True) 
-    
+    image_url = db.Column(db.String(255), nullable=True)
     uploader_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    # NEW MODULAR CATEGORIES (Replacing the old is_refrigerated column)
+    is_vegetarian = db.Column(db.Boolean, default=False)
+    is_vegan = db.Column(db.Boolean, default=False)
+    prep_type = db.Column(db.String(30), default='homemade') # homemade, store_bought, groceries
+    is_frozen = db.Column(db.Boolean, default=False)
+
     uploader = db.relationship('User', backref='posts')
 
 class Message(db.Model):
@@ -151,29 +154,36 @@ def create_post():
     if request.method == 'POST':
         title_input = request.form['title']
         desc_input = request.form['description']
-        is_refrigerated_input = 'is_refrigerated' in request.form 
         
-        # 1. Handle the Image Upload
-        image_url = None
-        if 'meal_photo' in request.files:
-            file = request.files['meal_photo']
-            if file.filename != '':
-                # Clean the filename and add a unique ID so users don't overwrite each other's files
-                original_filename = secure_filename(file.filename)
-                unique_filename = f"{uuid.uuid4().hex}_{original_filename}"
-                
-                # Upload the file directly to Cloudflare R2
+        # Capture our new boolean tags
+        is_vegetarian_input = 'is_vegetarian' in request.form
+        is_vegan_input = 'is_vegan' in request.form
+        is_frozen_input = 'is_frozen' in request.form
+        
+        # Capture our radio selection string
+        prep_type_input = request.form.get('prep_type', 'homemade')
+        
+        # Handle File Upload
+        file = request.files.get('image')
+        unique_filename = None
+        if file and file.filename != '':
+            ext = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4().hex}{ext}"
+            try:
                 s3.upload_fileobj(file, R2_BUCKET_NAME, unique_filename)
-                
-                # Construct the public URL where the image now lives
-                image_url = f"{R2_PUBLIC_CUSTOM_DOMAIN}/{unique_filename}"
-        
-        # 2. Save the Post and the Image URL to the database
+            except Exception as e:
+                print(f"Upload Failed: {e}")
+                return "<h1>Upload Error</h1><p>Could not send image to Cloudflare R2.</p>"
+
+        # Create the post with the new modular parameters
         new_post = Post(
             title=title_input,
             description=desc_input,
-            is_refrigerated=is_refrigerated_input,
-            image_url=image_url,
+            is_vegetarian=is_vegetarian_input,
+            is_vegan=is_vegan_input,
+            prep_type=prep_type_input,
+            is_frozen=is_frozen_input,
+            image_url=unique_filename,
             uploader_id=current_user.id
         )
         
@@ -183,6 +193,58 @@ def create_post():
         return redirect(url_for('home'))
         
     return render_template('create_post.html')
+
+@app.route('/delete_post/<int:post_id>')
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    # Security Check: Only the owner can delete it
+    if post.uploader_id == current_user.id:
+        post.status = 'deleted' # Soft delete!
+        db.session.commit()
+        
+    return redirect(url_for('home'))
+
+@app.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    # Security Check: Only the owner can edit it
+    if post.uploader_id != current_user.id:
+        return redirect(url_for('home'))
+        
+    if request.method == 'POST':
+        # Update text fields
+        post.title = request.form['title']
+        post.description = request.form['description']
+        
+        # Update boolean tags
+        post.is_vegetarian = 'is_vegetarian' in request.form
+        post.is_vegan = 'is_vegan' in request.form
+        post.is_frozen = 'is_frozen' in request.form
+        
+        # Update radio string
+        post.prep_type = request.form.get('prep_type', 'homemade')
+        
+        # Optional Image Update (Only upload if they provided a new file)
+        file = request.files.get('image')
+        if file and file.filename != '':
+            ext = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4().hex}{ext}"
+            try:
+                s3.upload_fileobj(file, R2_BUCKET_NAME, unique_filename)
+                post.image_url = unique_filename
+            except Exception as e:
+                print(f"Upload Failed: {e}")
+                
+        db.session.commit()
+        return redirect(url_for('home'))
+        
+    # If it's a GET request, show them the edit form
+    return render_template('edit_post.html', post=post)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

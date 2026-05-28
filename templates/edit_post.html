@@ -1,26 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
 <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h2>Share a Meal with Neighbors</h2>
-    <form action="/create_post" method="POST" enctype="multipart/form-data">
+    <h2>Editing Your Post</h2>
+    <form action="/edit_post/{{ post.id }}" method="POST" enctype="multipart/form-data">
         
         <label style="display: block; margin-bottom: 5px; font-weight: bold;">What are you sharing?</label>
-        <input type="text" name="title" required placeholder="e.g., Homemade Vegetable Lasagna" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+        <input type="text" name="title" required value="{{ post.title }}" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
 
         <label style="display: block; margin-bottom: 5px; font-weight: bold;">Description / Details</label>
-        <textarea name="description" required placeholder="Describe ingredients, portion sizes, pickup instructions..." style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; height: 100px;"></textarea>
+        <textarea name="description" required style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; height: 100px;">{{ post.description }}</textarea>
 
         <div style="margin-bottom: 15px; background: #fdfdfd; padding: 15px; border: 1px solid #eaeaea; border-radius: 4px;">
             <span style="display: block; font-weight: bold; margin-bottom: 12px;">Preparation & Origin</span>
             <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                 <label style="font-weight: normal; display: inline-flex; align-items: center; white-space: nowrap;">
-                    <input type="radio" name="prep_type" value="homemade" checked style="margin: 0 5px 0 0;"> Homemade Meal
+                    <input type="radio" name="prep_type" value="homemade" {% if post.prep_type == 'homemade' %}checked{% endif %} style="margin: 0 5px 0 0;"> Homemade Meal
                 </label>
                 <label style="font-weight: normal; display: inline-flex; align-items: center; white-space: nowrap;">
-                    <input type="radio" name="prep_type" value="store_bought" style="margin: 0 5px 0 0;"> Store-Prepared / Restaurant
+                    <input type="radio" name="prep_type" value="store_bought" {% if post.prep_type == 'store_bought' %}checked{% endif %} style="margin: 0 5px 0 0;"> Store-Prepared / Restaurant
                 </label>
                 <label style="font-weight: normal; display: inline-flex; align-items: center; white-space: nowrap;">
-                    <input type="radio" name="prep_type" value="groceries" style="margin: 0 5px 0 0;"> Unopened Groceries
+                    <input type="radio" name="prep_type" value="groceries" {% if post.prep_type == 'groceries' %}checked{% endif %} style="margin: 0 5px 0 0;"> Unopened Groceries
                 </label>
             </div>
         </div>
@@ -29,21 +29,24 @@
             <span style="display: block; font-weight: bold; margin-bottom: 12px;">Food Characteristics (Check all that apply)</span>
             <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                 <label style="font-weight: normal; display: inline-flex; align-items: center; white-space: nowrap;">
-                    <input type="checkbox" name="is_vegetarian" style="margin: 0 5px 0 0;"> Vegetarian
+                    <input type="checkbox" name="is_vegetarian" {% if post.is_vegetarian %}checked{% endif %} style="margin: 0 5px 0 0;"> Vegetarian
                 </label>
                 <label style="font-weight: normal; display: inline-flex; align-items: center; white-space: nowrap;">
-                    <input type="checkbox" name="is_vegan" style="margin: 0 5px 0 0;"> Vegan
+                    <input type="checkbox" name="is_vegan" {% if post.is_vegan %}checked{% endif %} style="margin: 0 5px 0 0;"> Vegan
                 </label>
                 <label style="font-weight: normal; display: inline-flex; align-items: center; white-space: nowrap;">
-                    <input type="checkbox" name="is_frozen" style="margin: 0 5px 0 0;"> ❄️ Frozen Solid
+                    <input type="checkbox" name="is_frozen" {% if post.is_frozen %}checked{% endif %} style="margin: 0 5px 0 0;"> ❄️ Frozen Solid
                 </label>
             </div>
         </div>
 
-        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Add a Photo</label>
+        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Update Photo (Optional)</label>
+        {% if post.image_url %}
+            <p style="font-size: 12px; color: #666; margin-top: 0;">Your current photo is saved. Upload a new one to replace it.</p>
+        {% endif %}
         <input type="file" name="image" accept="image/*" style="margin-bottom: 20px;">
 
-        <button type="submit" style="background-color: #2e7d32; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%;">Post to the Board</button>
+        <button type="submit" style="background-color: #f57c00; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%;">Save Changes</button>
     </form>
 </div>
 {% endblock %}
