@@ -358,11 +358,21 @@ def conversation(other_user_id):
     if request.method == 'POST':
         message_content = request.form['content']
         
-        # NEW LOGIC: Check if this is the very first message from you to them
-        first_time_messaging = Message.query.filter_by(
-            sender_id=current_user.id, 
-            receiver_id=other_user.id
-        ).first() is None
+        # --- NEW DAILY EMAIL LOGIC ---
+        # Get current time and strip it back to midnight to get "start of today"
+        now = datetime.now(timezone.utc)
+        start_of_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Check if we have already sent a message to this specific user TODAY
+        messaged_today = Message.query.filter(
+            Message.sender_id == current_user.id,
+            Message.receiver_id == other_user.id,
+            Message.timestamp >= start_of_today
+        ).first()
+        
+        # If the result is None, it means this is our first message to them today!
+        should_send_email = (messaged_today is None)
+        # -----------------------------
         
         new_message = Message(
             sender_id=current_user.id,
@@ -372,8 +382,8 @@ def conversation(other_user_id):
         db.session.add(new_message)
         db.session.commit()
         
-        # NEW LOGIC: Trigger the email if it was their first message!
-        if first_time_messaging:
+        # Trigger the email only if it's the first message of the day
+        if should_send_email:
             send_notification_email(other_user.email_encrypted, current_user.username)
             
         # Refresh the page to show the new message
@@ -394,6 +404,7 @@ def conversation(other_user_id):
     db.session.commit()
     
     return render_template('conversation.html', messages=chat_history, other_user=other_user)
+
 
 if __name__ == '__main__':
     with app.app_context():
